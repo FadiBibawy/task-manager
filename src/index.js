@@ -152,32 +152,52 @@ app.post("/users", async (req, res) => {
   //   });
 });
 
-app.delete("/users/:id", (req, res) => {
-  User.findById(req.params.id)
-    .then((user) => {
-      if (!user) {
-        return res.status(404).send();
-      }
-      console.log(user.id);
-      User.deleteOne({ _id: user.id })
-        .then((result) => {
-          res.send(
-            `${result.deletedCount} users ${
-              result.deletedCount > 1 ? "are" : "is"
-            } deleted, ${user}`
-          );
-          console.log(result);
-        })
-        .catch((e) => {
-          res.status(409).send(e);
-        });
-    })
-    .catch((e) => {
-      if (e.name == "CastError") {
-        return res.status(404).send();
-      }
-      res.status(500).send(e);
-    });
+app.delete("/users/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).send();
+    }
+    console.log(user.id);
+    const result = await User.deleteOne({ _id: user.id });
+    res.send(
+      `${result.deletedCount} users ${
+        result.deletedCount > 1 ? "are" : "is"
+      } deleted, ${user}`
+    );
+    console.log(result);
+  } catch (e) {
+    if (e.name == "CastError") {
+      return res.status(404).send();
+    }
+    res.status(500).send(e);
+  }
+
+  // User.findById(req.params.id)
+  //   .then((user) => {
+  //     if (!user) {
+  //       return res.status(404).send();
+  //     }
+  //     console.log(user.id);
+  //     User.deleteOne({ _id: user.id })
+  //       .then((result) => {
+  //         res.send(
+  //           `${result.deletedCount} users ${
+  //             result.deletedCount > 1 ? "are" : "is"
+  //           } deleted, ${user}`
+  //         );
+  //         console.log(result);
+  //       })
+  //       .catch((e) => {
+  //         res.status(409).send(e);
+  //       });
+  //   })
+  //   .catch((e) => {
+  //     if (e.name == "CastError") {
+  //       return res.status(404).send();
+  //     }
+  //     res.status(500).send(e);
+  //   });
 });
 
 app.listen(3000);
