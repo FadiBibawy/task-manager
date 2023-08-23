@@ -83,10 +83,15 @@ taskRouter.patch("/tasks/:id", async (req, res) => {
     const params = Object.keys(req.body);
     const isPermited = params.every((param) => permitedParams.includes(param));
     if (!isPermited) {
-      return res.status(400).send("you are not allowed to update that param");
+      return res.status(400).send("you are not allowed to update that field");
     }
-    console.log(params);
-    const task = await Task.findByIdAndUpdate(req.params.id, req.body);
+    // const task = await Task.findByIdAndUpdate(req.params.id, req.body);
+    const task = await Task.findById(req.params.id);
+    params.forEach((param) => {
+      task[param] = req.body[param];
+    });
+    task.save();
+
     if (!task) {
       return res.status(404).send(e);
     }
