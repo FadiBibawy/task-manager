@@ -76,4 +76,38 @@ taskRouter.post("/tasks", async (req, res) => {
   //   });
 });
 
+// Update Task
+taskRouter.patch("/tasks/:id", async (req, res) => {
+  try {
+    const permitedParams = ["completed"];
+    const params = Object.keys(req.body);
+    const isPermited = params.every((param) => permitedParams.includes(param));
+    if (!isPermited) {
+      return res.status(400).send("you are not allowed to update that param");
+    }
+    console.log(params);
+    const task = await Task.findByIdAndUpdate(req.params.id, req.body);
+    if (!task) {
+      return res.status(404).send(e);
+    }
+
+    res.status(201).send(task);
+  } catch (e) {
+    res.status(400).send();
+  }
+});
+
+// Delete Task
+taskRouter.delete("/tasks/:id", async (req, res) => {
+  try {
+    const task = await Task.findByIdAndDelete(req.params.id);
+    if (!task) {
+      return res.status(404).send();
+    }
+    res.send(task);
+  } catch (e) {
+    res.status(500).send();
+  }
+});
+
 module.exports = taskRouter;
