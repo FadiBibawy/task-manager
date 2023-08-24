@@ -1,6 +1,7 @@
 const express = require("express");
 const userRouter = new express.Router();
 const User = require("../models/user");
+const auth = require("../middleware/auth");
 
 // Read all users
 userRouter.get("/users", async (req, res) => {
@@ -18,6 +19,15 @@ userRouter.get("/users", async (req, res) => {
   //   .catch((e) => {
   //     res.status(400).send(e);
   //   });
+});
+
+// read Me
+userRouter.get("/users/me", auth, async (req, res) => {
+  try {
+    res.send(req.user);
+  } catch (e) {
+    res.status(401).send(e);
+  }
 });
 
 // Read User
