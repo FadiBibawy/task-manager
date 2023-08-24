@@ -21,10 +21,46 @@ userRouter.get("/users", async (req, res) => {
   //   });
 });
 
+// Login
+userRouter.get("/users/login", async (req, res) => {
+  try {
+    const email = req.body.email;
+    const password = req.body.password;
+    const user = await User.findOne({ email });
+    const check = await User.checkUser(email, password);
+    if (!check) {
+      throw new Error();
+    }
+    // console.log(user.tokens[0].token);
+    const token = await user.generateAuthToken();
+    res.send({ user, token });
+  } catch (e) {
+    res.status(401).send({ error: "Please Authenticate" });
+  }
+});
+
+// Logout
+userRouter.get("/users/logout", auth, async (req, res) => {
+  try {
+    const id = req.user._id.toString();
+    const user = await User.findById(id);
+    user.tokens = user.tokens.filter((token) => token.token !== req.token);
+    await user.save();
+    res.send(user);
+
+    // if (!check) {
+    //   throw new Error();
+    // }
+    // res.send({ user, token });
+  } catch (e) {
+    res.status(401).send({ error: "Please Authenticate" });
+  }
+});
+
 // read Me
 userRouter.get("/users/me", auth, async (req, res) => {
   try {
-    res.send(req.user);
+    res.send({ user: req.user, token: req.token });
   } catch (e) {
     res.status(401).send(e);
   }
