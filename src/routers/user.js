@@ -106,20 +106,6 @@ userRouter.get("/users/:id", async (req, res) => {
     }
     res.status(500).send(e);
   }
-
-  // User.findById(req.params.id)
-  //   .then((user) => {
-  //     if (!user) {
-  //       return res.status(404).send();
-  //     }
-  //     res.send(user);
-  //   })
-  //   .catch((e) => {
-  //     if (e.name == "CastError") {
-  //       return res.status(404).send();
-  //     }
-  //     res.status(500).send(e);
-  //   });
 });
 
 // Delete User
