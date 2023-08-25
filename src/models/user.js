@@ -56,6 +56,13 @@ userSchema.statics.checkUser = async function (email, password) {
   return check;
 };
 
+userSchema.methods.toJSON = function () {
+  const user = this.toObject();
+  delete user.password;
+  delete user.tokens;
+
+  return user;
+};
 userSchema.pre("save", async function (next) {
   if (this.isModified("password")) {
     this.password = await bcrypt.hashSync(this.password, 8);
