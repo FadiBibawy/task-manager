@@ -28,8 +28,9 @@ taskRouter.get("/tasks", async (req, res) => {
 taskRouter.get("/tasks/:id", auth, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id).populate("owner");
-    if (!req.user.id == task.owner.id) {
-      throw new Error("You are not Authenticated");
+
+    if (req.user.id !== task.owner.id) {
+      throw new Error("You are not Authenticated to open this task");
     }
     // await task.populate("owner");
     if (!task) {
@@ -40,7 +41,7 @@ taskRouter.get("/tasks/:id", auth, async (req, res) => {
     if (e.name == "CastError") {
       return res.status(404).send(e);
     }
-    res.status(500).send(e);
+    res.status(500).send(e.message);
   }
 
   // Task.findById(req.params.id)
