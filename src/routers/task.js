@@ -25,9 +25,12 @@ taskRouter.get("/tasks", async (req, res) => {
 });
 
 // Read Task
-taskRouter.get("/tasks/:id", async (req, res) => {
+taskRouter.get("/tasks/:id", auth, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id).populate("owner");
+    if (!req.user.id == task.owner.id) {
+      throw new Error("You are not Authenticated");
+    }
     // await task.populate("owner");
     if (!task) {
       return res.status(404).send(e);
