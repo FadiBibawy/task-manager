@@ -86,9 +86,35 @@ userRouter.get("/users/logoutall", auth, async (req, res) => {
 // read Me
 userRouter.get("/users/me", auth, async (req, res) => {
   try {
+    // console.log(req.user);
+    await req.user.populate("tasks");
+    // console.log(req.user);
     res.send({ user: req.user, token: req.token });
   } catch (e) {
     res.status(401).send(e);
+  }
+});
+
+// Update Me
+userRouter.patch("/users/me", auth, async (req, res) => {
+  try {
+    const permitedParams = ["name", "email", "password", "age"];
+    const params = Object.keys(req.body);
+    const isPermited = params.every((param) => permitedParams.includes(param));
+    if (!isPermited) {
+      return res.status(400).send("you are not allowed to update that field");
+    }
+    // const task = await Task.findByIdAndUpdate(req.params.id, req.body);
+    // const user = await User.findById(req.user.id);
+    const user = req.user;
+    await User.updateOne(user, req.body);
+    console.log(user);
+    // params.forEach((param) => {
+    //   task[param] = req.user[param];
+    // });
+    res.status(201).send(user);
+  } catch (e) {
+    res.status(400).send();
   }
 });
 

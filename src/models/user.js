@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { Schema } = mongoose;
 
 // User Model
 const userSchema = new mongoose.Schema({
@@ -38,7 +39,20 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  // tasks: [
+  //   {
+  //     type: Schema.Types.ObjectId,
+  //     ref: "Task",
+  //   },
+  // ],
 });
+
+userSchema.virtual("tasks", {
+  ref: "Task",
+  localField: "_id",
+  foreignField: "owner",
+});
+
 userSchema.methods.generateAuthToken = async function () {
   const token = jwt.sign({ _id: this._id.toString() }, "fadibibawyusertoken");
   this.tokens.push({ token });

@@ -1,5 +1,6 @@
 const express = require("express");
 const Task = require("../models/task");
+const auth = require("../middleware/auth");
 
 const taskRouter = new express.Router();
 
@@ -26,7 +27,8 @@ taskRouter.get("/tasks", async (req, res) => {
 // Read Task
 taskRouter.get("/tasks/:id", async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findById(req.params.id).populate("owner");
+    // await task.populate("owner");
     if (!task) {
       return res.status(404).send(e);
     }
@@ -53,12 +55,33 @@ taskRouter.get("/tasks/:id", async (req, res) => {
   //   });
 });
 
+// Read my tasks
+taskRouter.get("/tasks/me", auth, async (req, res) => {
+  try {
+    const tasks = await req.user.tasks.populate("owner");
+    // await task.populate("owner");
+
+    res.send(tasks);
+  } catch (e) {
+    if (e.name == "CastError") {
+      return res.status(404).send(e);
+    }
+    res.status(500).send(e);
+  }
+});
+
 // create task
-taskRouter.post("/tasks", async (req, res) => {
+taskRouter.post("/tasks", auth, async (req, res) => {
   // await res.send(tasks);
 
   try {
-    const task = new Task(req.body);
+    const task = new Task({
+      ...req.body,
+      owner: req.user._id,
+    });
+    // task.owner = req.user._id;
+    // req.user.tasks.push(task._id);
+    await req.user.save();
     await task.save();
     res.status(201).send(task);
   } catch (e) {
@@ -90,7 +113,7 @@ taskRouter.patch("/tasks/:id", async (req, res) => {
     params.forEach((param) => {
       task[param] = req.body[param];
     });
-    task.save();
+    await task.save();
 
     if (!task) {
       return res.status(404).send(e);
