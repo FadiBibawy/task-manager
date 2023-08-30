@@ -88,8 +88,9 @@ userRouter.get("/users/me", auth, async (req, res) => {
   try {
     // console.log(req.user);
     await req.user.populate("tasks");
+    const tasks = req.user.tasks;
     // console.log(req.user);
-    res.send({ user: req.user, token: req.token });
+    res.send({ user: req.user, token: req.token, tasks });
   } catch (e) {
     res.status(401).send(e);
   }

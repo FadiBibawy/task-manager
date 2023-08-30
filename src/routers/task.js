@@ -56,9 +56,11 @@ taskRouter.get("/tasks/:id", async (req, res) => {
 });
 
 // Read my tasks
-taskRouter.get("/tasks/me", auth, async (req, res) => {
+taskRouter.get("/myTasks", auth, async (req, res) => {
   try {
-    const tasks = await req.user.tasks.populate("owner");
+    console.log(req.user);
+    await req.user.populate("tasks");
+    const tasks = req.user.tasks;
     // await task.populate("owner");
 
     res.send(tasks);
